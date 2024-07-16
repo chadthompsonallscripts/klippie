@@ -1,9 +1,11 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using klippie.Properties;
 using WK.Libraries.SharpClipboardNS;
 
 namespace klippie
@@ -31,6 +33,16 @@ namespace klippie
                 return;
 
             WriteFile(args, label);
+
+            if (Settings.Default["PostProcessCommand"] != null)
+            {
+                var postProcessCommands = Settings.Default["PostProcessCommand"].ToString();
+                string extension = postProcessCommands.Split('.')[1].Split(' ')[0];
+                string command = $"{postProcessCommands.Split('.')[0]}.{extension}";
+                string arguments = postProcessCommands.Split('.')[1].Replace($"{extension} ", string.Empty);
+                Process process = Process.Start(command, arguments);
+                process?.WaitForExit();
+            }
         }
 
         private void KlippieForm_Load(object sender, EventArgs e)
