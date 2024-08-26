@@ -34,15 +34,22 @@ namespace klippie
 
             WriteFile(args, label);
 
-            if (Settings.Default["PostProcessCommand"] != null)
+            if (Settings.Default["PostProcessCommand"] == null)
             {
-                var postProcessCommands = Settings.Default["PostProcessCommand"].ToString();
-                string extension = postProcessCommands.Split('.')[1].Split(' ')[0];
-                string command = $"{postProcessCommands.Split('.')[0]}.{extension}";
-                string arguments = postProcessCommands.Split('.')[1].Replace($"{extension} ", string.Empty);
-                Process process = Process.Start(command, arguments);
-                process?.WaitForExit();
+                return;
             }
+
+            var postProcessCommands = Settings.Default["PostProcessCommand"].ToString();
+            string extension = postProcessCommands.Split('.')[1].Split(' ')[0];
+            var command = $"{postProcessCommands.Split('.')[0]}.{extension}";
+            string arguments = postProcessCommands.Split('.')[1].Replace($"{extension} ", string.Empty);
+            if (!File.Exists(command))
+            {
+                return;
+            }
+
+            Process process = Process.Start(command, arguments);
+            process?.WaitForExit();
         }
 
         private void KlippieForm_Load(object sender, EventArgs e)
